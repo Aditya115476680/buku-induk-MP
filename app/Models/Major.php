@@ -10,4 +10,10 @@ class Major extends Model
     use HasFactory;
 
     protected $fillable = ['code', 'name'];
+
+    public function classes()
+{
+    return $this->hasMany(SchoolClass::class);
+}
+
 }

@@ -3,21 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\SchoolClass;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request)
-    {
-        $user = $request->user();
+    public function index()
+{
+    return view('dashboard.index', [
+        'totalStudents' => \App\Models\Student::count(),
+        'totalTeachers' => \App\Models\Teacher::count(),
+        'totalClasses'  => \App\Models\SchoolClass::count(),
+        'totalMajors'   => \App\Models\Major::count(),
+    ]);
+}
 
-        if ($user->hasRole('admin')) {
-            return redirect()->route('admin.dashboard');
-        }
-
-        if ($user->hasRole('guru')) {
-            return redirect()->route('guru.dashboard');
-        }
-
-        abort(403);
-    }
 }

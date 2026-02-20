@@ -1,18 +1,29 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\MajorController;
-use App\Http\Controllers\Admin\SchoolClassController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
-Route::get('/dashboard', DashboardController::class)
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
     ->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -20,17 +31,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::get('/cetak/buku-induk', function () {
+    return view('cetak.buku');
+})->name('cetak.buku');
 
-        Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+Route::get('/cetak/data-siswa', function () {
+    return view('cetak.siswa');
+})->name('cetak.siswa');
 
-        Route::resource('majors', MajorController::class)->except(['show']);
-        Route::resource('classes', SchoolClassController::class)->except(['show']);
-    });
-
-Route::middleware(['auth', 'role:guru'])->prefix('guru')->name('guru.')->group(function () {
-
-        Route::view('/dashboard', 'guru.dashboard')->name('dashboard');
-    });
 
 require __DIR__.'/auth.php';

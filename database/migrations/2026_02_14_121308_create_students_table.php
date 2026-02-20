@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('birth_place');
             $table->date('birth_date');
             $table->string('photo_path');
+            $table->text('address')->nullable();
             $table->boolean('is_active')->default(false);
 
             $table->foreignId('current_class_id')->nullable()->constrained('school_classes')->nullOnDelete();
