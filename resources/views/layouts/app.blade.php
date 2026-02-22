@@ -207,8 +207,8 @@
                 transition-all duration-300">
 
                 <span class="text-lg">
-                    <span x-show="darkMode">🌙</span>
-                    <span x-show="!darkMode">☀️</span>
+                    <span x-show="darkMode"></span>
+                    <span x-show="!darkMode"></span>
                 </span>
 
                 <span class="text-sm font-semibold">

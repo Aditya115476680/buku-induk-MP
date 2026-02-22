@@ -9,7 +9,7 @@ class Semester extends Model
 {
     protected $fillable = [
         'academic_year_id',
-        'name', // Ganjil / Genap
+        'name',
         'is_active'
     ];
 

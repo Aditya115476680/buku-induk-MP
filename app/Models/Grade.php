@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Grade extends Model
 {
+
     protected $fillable = [
         'student_id',
-        'subject_offering_id',
-        'score',
-        'notes'
+        'subject_id',
+        'academic_year_id',
+        'semester_id',
+        'score'
     ];
 
     public function student()
@@ -19,8 +21,19 @@ class Grade extends Model
         return $this->belongsTo(Student::class);
     }
 
-    public function subjectOffering()
+    public function subject()
     {
-        return $this->belongsTo(SubjectOffering::class);
+        return $this->belongsTo(Subject::class);
     }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class);
+    }
+
 }

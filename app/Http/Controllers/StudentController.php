@@ -247,4 +247,51 @@ class StudentController extends Controller
             return back()->with('success', 'Siswa berhasil dihapus.');
         });
     }
+
+    public function grades($id)
+    {
+
+    $student = \App\Models\Student::findOrFail($id);
+
+
+    $grades = \App\Models\Grade::with(
+        'subject',
+        'academicYear',
+        'semester'
+    )
+    ->where('student_id',$id)
+    ->get();
+
+
+    return view('students.grades',compact(
+        'student',
+        'grades'
+    ));
+
+    }
+    public function cetakBuku($id)
+    {
+
+    $student = \App\Models\Student::with(
+        'currentClass.major',
+        'parent',
+        'history'
+    )->findOrFail($id);
+
+
+    $grades = \App\Models\Grade::with(
+        'subject',
+        'academicYear',
+        'semester'
+    )
+    ->where('student_id',$id)
+    ->get();
+
+
+    return view('cetak.bukuInduk',compact(
+        'student',
+        'grades'
+    ));
+
+    }
 }

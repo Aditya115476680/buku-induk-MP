@@ -123,4 +123,26 @@ class SchoolClassController extends Controller
 
         return back()->with('success', 'Kelas berhasil dihapus.');
     }
+
+    public function cetak($id)
+    {
+
+    $class = \App\Models\SchoolClass::with(
+        'major',
+        'homeroomTeacher'
+    )->findOrFail($id);
+
+
+    $students = \App\Models\Student::where(
+        'current_class_id',
+    $id
+    )->get();
+
+
+    return view('cetak.kelas',compact(
+        'class',
+        'students'
+    ));
+
+    }
 }
