@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Grade;
 use App\Models\SchoolClass;
 use App\Models\Student;
 use Illuminate\Http\Request;
@@ -12,7 +13,6 @@ use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
-
     public function index(Request $request)
     {
         $q = $request->query('q');
@@ -22,11 +22,13 @@ class StudentController extends Controller
         $students = Student::query()
             ->with(['currentClass.major'])
             ->when($q, function ($query) use ($q) {
-                $query->where('name', 'like', "%{$q}%")
-                      ->orWhere('nis', 'like', "%{$q}%")
-                      ->orWhere('nisn', 'like', "%{$q}%");
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('name', 'like', "%{$q}%")
+                        ->orWhere('nis', 'like', "%{$q}%")
+                        ->orWhere('nisn', 'like', "%{$q}%");
+                });
             })
-            ->when($classId, fn($query) => $query->where('current_class_id', $classId))
+            ->when($classId, fn ($query) => $query->where('current_class_id', $classId))
             ->when($status, function ($query) use ($status) {
                 if ($status === 'aktif') $query->where('is_active', 1);
                 if ($status === 'nonaktif') $query->where('is_active', 0);
@@ -35,24 +37,26 @@ class StudentController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $classes = SchoolClass::query()->with('major')
+        $classes = SchoolClass::query()
+            ->with('major')
             ->orderByRaw("FIELD(grade_level,'X','XI','XII')")
             ->orderBy('major_id')
             ->orderBy('rombel')
             ->get();
 
-        return view('admin.students.index', compact('students', 'classes', 'q', 'classId', 'status'));
+        return view('students.index', compact('students', 'classes', 'q', 'classId', 'status'));
     }
 
     public function create()
     {
-        $classes = SchoolClass::query()->with('major')
+        $classes = SchoolClass::query()
+            ->with('major')
             ->orderByRaw("FIELD(grade_level,'X','XI','XII')")
             ->orderBy('major_id')
             ->orderBy('rombel')
             ->get();
 
-        return view('admin.students.create', compact('classes'));
+        return view('students.create', compact('classes'));
     }
 
     public function store(Request $request)
@@ -67,9 +71,10 @@ class StudentController extends Controller
             'photo' => ['required', 'image', 'max:2048'],
         ]);
 
-        return DB::transaction(function () use ($data, $request) {
-            $path = $request->file('photo')->store('students', 'public'); 
-            $student = Student::create([
+        $student = DB::transaction(function () use ($data, $request) {
+            $path = $request->file('photo')->store('students', 'public');
+
+            return Student::create([
                 'nis' => $data['nis'],
                 'nisn' => $data['nisn'],
                 'name' => $data['name'],
@@ -79,43 +84,36 @@ class StudentController extends Controller
                 'photo_path' => $path,
                 'is_active' => 1,
             ]);
-
-            return redirect()
-                ->route('admin.students.step.edit', ['student' => $student->id, 'step' => 2])
-                ->with('success', 'Step 1 tersimpan. Lanjut isi data berikutnya.');
         });
+
+        return redirect()
+            ->route('students.step.edit', ['student' => $student->id, 'step' => 2])
+            ->with('success', 'Step 1 tersimpan. Lanjut isi data berikutnya.');
     }
 
     public function editStep(Student $student, int $step)
     {
-        abort_unless(in_array($step, [1,2,3,4], true), 404);
+        abort_unless(in_array($step, [1, 2, 3, 4], true), 404);
 
         $student->load(['currentClass.major', 'parent', 'history']);
 
-        $classes = SchoolClass::query()->with('major')
+        $classes = SchoolClass::query()
+            ->with('major')
             ->orderByRaw("FIELD(grade_level,'X','XI','XII')")
             ->orderBy('major_id')
             ->orderBy('rombel')
             ->get();
 
-        return view('admin.students.steps.edit', compact('student', 'step', 'classes'));
+        return view('students.steps.edit', compact('student', 'step', 'classes'));
     }
 
     public function updateStep(Request $request, Student $student, int $step)
     {
-        abort_unless(in_array($step, [1,2,3,4], true), 404);
+        abort_unless(in_array($step, [1, 2, 3, 4], true), 404);
 
-        if ($step === 1) {
-            return $this->updateStep1($request, $student);
-        }
-
-        if ($step === 2) {
-            return $this->updateStep2($request, $student);
-        }
-
-        if ($step === 3) {
-            return $this->updateStep3($request, $student);
-        }
+        if ($step === 1) return $this->updateStep1($request, $student);
+        if ($step === 2) return $this->updateStep2($request, $student);
+        if ($step === 3) return $this->updateStep3($request, $student);
 
         return $this->updateStep4($request, $student);
     }
@@ -132,7 +130,7 @@ class StudentController extends Controller
             'photo' => ['nullable', 'image', 'max:2048'],
         ]);
 
-        return DB::transaction(function () use ($data, $request, $student) {
+        DB::transaction(function () use ($data, $request, $student) {
             $payload = [
                 'nis' => $data['nis'],
                 'nisn' => $data['nisn'],
@@ -144,17 +142,17 @@ class StudentController extends Controller
 
             if ($request->hasFile('photo')) {
                 if ($student->photo_path) {
-                    Storage::disk('public')->delete($student->photo_path); // delete file [web:75]
+                    Storage::disk('public')->delete($student->photo_path);
                 }
-                $payload['photo_path'] = $request->file('photo')->store('students', 'public'); // store [web:75]
+                $payload['photo_path'] = $request->file('photo')->store('students', 'public');
             }
 
             $student->update($payload);
-
-            return redirect()
-                ->route('admin.students.step.edit', ['student' => $student->id, 'step' => 2])
-                ->with('success', 'Step 1 diupdate.');
         });
+
+        return redirect()
+            ->route('students.step.edit', ['student' => $student->id, 'step' => 2])
+            ->with('success', 'Step 1 diupdate.');
     }
 
     private function updateStep2(Request $request, Student $student)
@@ -168,7 +166,7 @@ class StudentController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.students.step.edit', ['student' => $student->id, 'step' => 3])
+            ->route('students.step.edit', ['student' => $student->id, 'step' => 3])
             ->with('success', 'Step 2 tersimpan.');
     }
 
@@ -198,7 +196,7 @@ class StudentController extends Controller
         );
 
         return redirect()
-            ->route('admin.students.step.edit', ['student' => $student->id, 'step' => 4])
+            ->route('students.step.edit', ['student' => $student->id, 'step' => 4])
             ->with('success', 'Step 3 tersimpan.');
     }
 
@@ -220,14 +218,13 @@ class StudentController extends Controller
         );
 
         return redirect()
-            ->route('admin.students.index')
+            ->route('students.index')
             ->with('success', 'Data siswa lengkap tersimpan.');
     }
 
-
     public function edit(Student $student)
     {
-        return redirect()->route('admin.students.step.edit', ['student' => $student->id, 'step' => 1]);
+        return redirect()->route('students.step.edit', ['student' => $student->id, 'step' => 1]);
     }
 
     public function update(Request $request, Student $student)
@@ -237,61 +234,35 @@ class StudentController extends Controller
 
     public function destroy(Student $student)
     {
-        return DB::transaction(function () use ($student) {
+        DB::transaction(function () use ($student) {
             if ($student->photo_path) {
                 Storage::disk('public')->delete($student->photo_path);
             }
-
             $student->delete();
-
-            return back()->with('success', 'Siswa berhasil dihapus.');
         });
+
+        return back()->with('success', 'Siswa berhasil dihapus.');
     }
 
     public function grades($id)
     {
+        $student = Student::findOrFail($id);
 
-    $student = \App\Models\Student::findOrFail($id);
+        $grades = Grade::with('subject', 'academicYear', 'semester')
+            ->where('student_id', $id)
+            ->get();
 
-
-    $grades = \App\Models\Grade::with(
-        'subject',
-        'academicYear',
-        'semester'
-    )
-    ->where('student_id',$id)
-    ->get();
-
-
-    return view('students.grades',compact(
-        'student',
-        'grades'
-    ));
-
+        return view('students.grades', compact('student', 'grades'));
     }
+
     public function cetakBuku($id)
     {
+        $student = Student::with('currentClass.major', 'parent', 'history')->findOrFail($id);
 
-    $student = \App\Models\Student::with(
-        'currentClass.major',
-        'parent',
-        'history'
-    )->findOrFail($id);
+        $grades = Grade::with('subject', 'academicYear', 'semester')
+            ->where('student_id', $id)
+            ->get();
 
-
-    $grades = \App\Models\Grade::with(
-        'subject',
-        'academicYear',
-        'semester'
-    )
-    ->where('student_id',$id)
-    ->get();
-
-
-    return view('cetak.bukuInduk',compact(
-        'student',
-        'grades'
-    ));
-
+        return view('cetak.bukuInduk', compact('student', 'grades'));
     }
 }

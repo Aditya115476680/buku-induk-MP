@@ -7,6 +7,8 @@ use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\SchoolClass;
 use App\Models\Major;
+use App\Models\Subject;
+use App\Models\Grade;
 
 class DashboardController extends Controller
 {
