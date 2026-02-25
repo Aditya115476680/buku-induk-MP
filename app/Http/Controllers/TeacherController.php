@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Iluminate\Support\Facades\DB;
-use Iluminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\models\Teacher;
 use App\models\User;
 
@@ -30,7 +30,7 @@ class TeacherController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:8'],
             'phone' => ['nullable', 'string', 'max:30'],
-            'address' => ['nullablr', 'string'],
+            'address' => ['nullable', 'string'],
         ]);
 
         return DB::transaction(function () use ($data) {

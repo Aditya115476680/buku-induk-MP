@@ -65,7 +65,6 @@
                 Dashboard
             </a>
 
-            {{-- Data Master --}}
             <button type="button"
                 @click="toggleMaster()"
                 class="w-full text-left px-4 py-2 rounded-lg
@@ -108,7 +107,6 @@
                 </a>
             </div>
 
-            {{-- Akademik --}}
             <button type="button"
                 @click="toggleAkademik()"
                 class="w-full text-left px-4 py-2 rounded-lg mt-4
@@ -151,7 +149,6 @@
                 </a>
             </div>
 
-            {{-- Cetak --}}
             <button type="button"
                 @click="toggleCetak()"
                 class="w-full text-left px-4 py-2 rounded-lg mt-4

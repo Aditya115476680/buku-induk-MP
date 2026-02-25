@@ -11,7 +11,7 @@
 
     {{-- Cards Kotak-kotak --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {{-- Jumlah Siswa --}}
+
         <div class="rounded-xl bg-white dark:bg-brandCard shadow-sm border border-gray-100 dark:border-white/10 p-5">
             <p class="text-sm text-gray-500 dark:text-gray-400">Jumlah Siswa</p>
             <div class="mt-2 flex items-end justify-between">
@@ -22,7 +22,6 @@
             </div>
         </div>
 
-        {{-- Jumlah Kelas --}}
         <div class="rounded-xl bg-white dark:bg-brandCard shadow-sm border border-gray-100 dark:border-white/10 p-5">
             <p class="text-sm text-gray-500 dark:text-gray-400">Jumlah Kelas</p>
             <div class="mt-2 flex items-end justify-between">
@@ -33,7 +32,6 @@
             </div>
         </div>
 
-        {{-- Jumlah Mapel --}}
         <div class="rounded-xl bg-white dark:bg-brandCard shadow-sm border border-gray-100 dark:border-white/10 p-5">
             <p class="text-sm text-gray-500 dark:text-gray-400">Jumlah Mapel</p>
             <div class="mt-2 flex items-end justify-between">
@@ -44,32 +42,12 @@
             </div>
         </div>
 
-        {{-- Jumlah Nilai --}}
         <div class="rounded-xl bg-white dark:bg-brandCard shadow-sm border border-gray-100 dark:border-white/10 p-5">
             <p class="text-sm text-gray-500 dark:text-gray-400">Jumlah Nilai</p>
             <div class="mt-2 flex items-end justify-between">
                 <h2 class="text-3xl font-bold text-gray-800 dark:text-white">{{ $jumlahNilai }}</h2>
                 <span class="text-xs px-2 py-1 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300">
                     Nilai
-                </span>
-            </div>
-        </div>
-    </div>
-
-    {{-- Rata-rata Nilai --}}
-    <div class="rounded-xl bg-white dark:bg-brandCard shadow-sm border border-gray-100 dark:border-white/10 p-5">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Rata-rata Nilai Siswa</p>
-                <h2 class="mt-2 text-3xl font-bold text-gray-800 dark:text-white">
-                    {{ number_format($rataNilai, 2) }}
-                </h2>
-            </div>
-
-            <div class="text-right">
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold
-                    bg-gray-900 text-white dark:bg-white dark:text-gray-900">
-                    Statistik
                 </span>
             </div>
         </div>
