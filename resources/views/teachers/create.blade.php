@@ -52,11 +52,39 @@
                               text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-brandAccent/40">
             </div>
 
+            {{-- TAMBAHAN: DROPDOWN WALI KELAS --}}
+            <div class="md:col-span-2">
+            <label class="block text-sm mb-1 text-gray-700 dark:text-gray-200">Wali Kelas (opsional)</label>
+            <select name="homeroom_class_id"
+                    class="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2
+                        text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-brandAccent/40">
+                <option value="">-- Tidak jadi wali kelas --</option>
+                @foreach ($classes as $class)
+                    <option value="{{ $class->id }}"
+                        {{ old('homeroom_class_id') == $class->id ? 'selected' : '' }}>
+                        {{ $class->grade_level }}
+                        {{ $class->major->name ?? 'Jurusan' }}
+                        {{ $class->rombel }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
             <div class="md:col-span-2">
                 <label class="block text-sm mb-1 text-gray-700 dark:text-gray-200">Alamat (opsional)</label>
                 <textarea name="address" rows="3"
                           class="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2
                                  text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-brandAccent/40">{{ old('address') }}</textarea>
+            </div>
+
+            {{-- TAMBAHAN: CHECKBOX AKTIF --}}
+            <div class="md:col-span-2">
+                <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200">
+                    <input type="checkbox" name="is_active" value="1"
+                           {{ old('is_active') ? 'checked' : '' }}
+                           class="rounded border-gray-300 dark:border-white/10">
+                    Aktifkan akun (guru bisa langsung login)
+                </label>
             </div>
 
             <div>

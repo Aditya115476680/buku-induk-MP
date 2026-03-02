@@ -31,7 +31,6 @@
         </div>
     @endif
 
-    {{-- Filter --}}
     <form method="GET" action="{{ route('classes.index') }}"
           class="rounded-xl bg-white dark:bg-brandCard shadow-sm border border-gray-100 dark:border-white/10 p-5 space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">

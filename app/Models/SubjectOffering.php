@@ -37,11 +37,12 @@ class SubjectOffering extends Model
 
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class);
+    return $this->hasOne(\App\Models\Teacher::class, 'user_id');
     }
 
     public function grades()
     {
         return $this->hasMany(Grade::class);
     }
+    
 }

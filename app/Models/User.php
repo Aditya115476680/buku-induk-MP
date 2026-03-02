@@ -16,6 +16,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_active', // biar bisa diisi dari TeacherController
     ];
 
     protected $hidden = [
@@ -26,5 +27,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_active' => 'boolean',
     ];
+
+    // RELASI: user punya 1 teacher (teachers.user_id -> users.id)
+    public function teacher()
+    {
+        return $this->hasOne(\App\Models\Teacher::class, 'user_id');
+    }
 }

@@ -40,40 +40,43 @@ class SchoolClassController extends Controller
 
     public function create()
     {
-        $majors = Major::query()->orderBy('code')->get();
-        $teachers = Teacher::query()->orderBy('name')->get();
-
+        $majors = Major::orderBy('name')->get();
+        $teachers = Teacher::orderBy('name')->get();
+        
         return view('classes.create', compact('majors', 'teachers'));
     }
 
+    // ✅ FIXED: Store untuk KELAS, bukan user/teacher
     public function store(Request $request)
     {
         $data = $request->validate([
             'grade_level' => ['required', Rule::in(['X', 'XI', 'XII'])],
-            'major_id' => ['required', 'exists:majors,id'],
             'rombel' => ['required', 'integer', 'min:1', 'max:20'],
+            'major_id' => ['required', 'exists:majors,id'],
             'homeroom_teacher_id' => ['nullable', 'exists:teachers,id'],
-        ]); 
+        ]);
 
-        try {
-            DB::transaction(function () use ($data) {
-                SchoolClass::create([
-                    'grade_level' => $data['grade_level'],
-                    'major_id' => $data['major_id'],
-                    'rombel' => $data['rombel'],
-                    'homeroom_teacher_id' => $data['homeroom_teacher_id'] ?? null,
-                ]);
-            });
-        } catch (\Throwable $e) {
+        // Cek duplikat kelas (tingkat + jurusan + rombel)
+        $exists = SchoolClass::where('grade_level', $data['grade_level'])
+            ->where('major_id', $data['major_id'])
+            ->where('rombel', $data['rombel'])
+            ->exists();
 
-            return back()
-                ->withInput()
-                ->withErrors(['grade_level' => 'Kelas tersebut sudah ada (tingkat + jurusan + rombel).']);
+        if ($exists) {
+            return back()->withInput()->withErrors(['rombel' => 'Kombinasi tingkat, jurusan, dan rombel sudah ada!']);
         }
 
-        return redirect()
-            ->route('classes.index')
-            ->with('success', 'Kelas berhasil ditambahkan.');
+        DB::transaction(function () use ($data) {
+            SchoolClass::create([
+                'grade_level' => $data['grade_level'],
+                'rombel' => $data['rombel'],
+                'major_id' => $data['major_id'],
+                'homeroom_teacher_id' => $data['homeroom_teacher_id'] ?? null,
+            ]);
+        });
+
+        return redirect()->route('classes.index')
+            ->with('success', 'Kelas ' . $data['grade_level'] . '-' . $data['rombel'] . ' berhasil dibuat!');
     }
 
     public function edit(SchoolClass $class)
@@ -126,23 +129,9 @@ class SchoolClassController extends Controller
 
     public function cetak($id)
     {
+        $class = SchoolClass::with('major', 'homeroomTeacher')->findOrFail($id);
+        $students = \App\Models\Student::where('current_class_id', $id)->get();
 
-    $class = \App\Models\SchoolClass::with(
-        'major',
-        'homeroomTeacher'
-    )->findOrFail($id);
-
-
-    $students = \App\Models\Student::where(
-        'current_class_id',
-    $id
-    )->get();
-
-
-    return view('cetak.kelas',compact(
-        'class',
-        'students'
-    ));
-
+        return view('cetak.kelas', compact('class', 'students'));
     }
 }

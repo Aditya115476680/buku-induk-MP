@@ -12,15 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('school_classes', function (Blueprint $table) {
-            $table->id();
-            $table->enum('grade_level', ['X', 'XI', 'XII']);
-            $table->unsignedTinyInteger('rombel')->default(1);
+        $table->id();
+        $table->enum('grade_level', ['X', 'XI', 'XII']);
+        $table->unsignedTinyInteger('rombel')->default(1);
 
-            $table->foreignId('major_id')->constrainted()->restrictOnDelete();
-            $table->foreignId('homeroom_teacher_id')->constrainted()->restrictOnDelete();
-            
-            $table->timestamps();
-        });
+        $table->foreignId('major_id')->constrained()->restrictOnDelete();
+
+        // wali kelas boleh kosong
+        $table->foreignId('homeroom_teacher_id')
+            ->nullable()
+            ->constrained('teachers')   // pastikan refer ke tabel teachers
+            ->nullOnDelete();
+
+        $table->timestamps();
+    });
+
     }
 
     /**
